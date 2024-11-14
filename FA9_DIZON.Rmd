@@ -1,0 +1,101 @@
+---
+title: "FA9"
+author: "Dizon, Kiana Marie"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+Data Summary: We will look at the summary statistics for political interest across gender and education levels.
+```{r 1}
+
+library(tidyverse)
+
+data <- data.frame(
+  gender = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+           1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+           2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+           2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+           2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
+
+education_level = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                    3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                    3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
+  political_interest = c(38, 39, 35, 38, 41, 40, 36, 37, 33, 41.5, 
+                         41.5, 44.5, 44.5, 44, 46.5, 42, 43.5, 38.5, 63, 64,
+                         61, 64, 69, 69, 66, 62, 63, 60, 40, 41, 
+                         36, 39, 44, 44, 42, 38, 38, 34, 45, 46, 
+                         41, 44, 49, 49, 47, 43, 43, 39, 57, 58, 
+                         63, 66, 65, 61, 59, 55, 45, 51, 50, 52))
+
+data$gender <- factor(data$gender, levels = c(1, 2), labels = c("Male", "Female"))
+data$education_level <- factor(data$education_level, levels = c(1, 2, 3), labels = c("Low", "Medium", "High"))
+
+summary(data)
+
+```
+
+ANOVA Analysis: We will conduct a two-way ANOVA to determine the main and interaction effects of gender and education level on political interest.
+```{r 2}
+
+anova_result <- aov(political_interest ~ gender * education_level, data = data)
+summary(anova_result)
+
+```
+Post Hoc Tests: If there are significant main or interaction effects, we may perform post hoc tests to understand where these differences lie.
+
+```{r 3}
+
+library(emmeans)
+emmeans(anova_result, pairwise ~ gender | education_level)
+emmeans(anova_result, pairwise ~ education_level | gender)
+
+```
+Check Assumptions
+For ANOVA, the assumptions of normality and homogeneity of variance should be met.
+```{r 4}
+
+shapiro.test(residuals(anova_result))
+
+library(car)
+leveneTest(political_interest ~ gender * education_level, data = data)
+
+```
+
+### Introduction
+
+The purpose of this analysis was to investigate the effect of gender (male, female) and education level (low, medium, high) on political interest. A two-way ANOVA was conducted to examine both the main effects and the interaction effect between gender and education level on political interest.
+
+### Method
+
+A two-way ANOVA was conducted with gender and education level as independent variables and political interest as the dependent variable. Post hoc comparisons were performed to further investigate any significant main effects.
+
+### Results
+
+The two-way ANOVA revealed a significant main effect of education level on political interest, F(2,54)=35.43, p<.001, indicating that political interest levels differed across education levels. There was no significant main effect of gender on political interest, F(1,54)=0.002, p=.964, suggesting that political interest does not vary significantly between males and females. Furthermore, the interaction effect between gender and education level was not significant, F(2,54)=0.76, p=.473, indicating that the effect of education level on political interest was similar for both genders.
+
+### Post Hoc Tests
+
+Post hoc tests using the Tukey method revealed the following:
+
+For males, political interest was significantly higher in the "medium" education level group than in the "low" education level group, t=−2.94, p=.0133.
+Political interest was significantly higher in the "high" education level group compared to both the "low" education level group, t=−6.80, p<.001, and the "medium" education level group, t=−3.86, p=.0009.
+For females, political interest was also significantly higher in the "high" education level group compared to both the "low" education level group, t=−5.05, p<.001, and the "medium" education level group, t=−3.05, p=.0099.
+These results indicate that higher education levels are associated with increased political interest in both genders.
+
+### Assumptions
+
+The Shapiro-Wilk test indicated that the residuals were approximately normally distributed, W=0.972, p=.1843. Levene’s test for homogeneity of variance was also not significant, F(5,54)=1.112, p=.365, suggesting that the assumption of equal variances was met.
+
+### Discussion
+
+The analysis demonstrated that education level significantly impacts political interest, with higher levels of education associated with greater political interest. This effect was consistent across both genders, as indicated by the non-significant interaction between gender and education level. Gender alone did not significantly affect political interest, suggesting that the influence of education on political interest is independent of gender.
+
+These findings contribute to the understanding of the factors that influence political interest and suggest that educational attainment plays a critical role in shaping political engagement.
+
+
+
